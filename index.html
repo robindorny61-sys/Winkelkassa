@@ -1,86 +1,208 @@
-from bs4 import BeautifulSoup
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kassa Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    select, input, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .bon {
+      background: #f4f4f4;
+      padding: 10px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    #qrcode-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .payment-instructions {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .card-logos {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .card-logos img {
+      height: 40px;
+    }
+    optgroup {
+      font-weight: bold;
+      font-style: normal;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧾 Echte Kassa Simulator</h1>
 
-# Original HTML code from user
-html_content = """
-<select id="product" multiple size="20">
-  <optgroup label="🍦 IJS SMAKEN">
-    <option>Vanille ijs - €1.50</option>
-    <option>Chocolade ijs - €1.50</option>
-    <option>Aardbei ijs - €1.50</option>
-    <option>Pistache ijs - €1.80</option>
-    <option>Hazelnoot ijs - €1.80</option>
-    <option>Stracciatella ijs - €1.80</option>
-    <option>Cookies ijs - €2.20</option>
-    <option>Salted caramel ijs - €2.20</option>
-    <option>Yoghurtijs - €2.00</option>
-    <option>Koffie ijs - €2.00</option>
-    <option>Kokos ijs - €2.00</option>
-    <option>Softijs - €1.50</option>
-    <option>Waterijsje - €1.00</option>
-  </optgroup>
+  <label for="product">Selecteer producten (meerdere):</label>
+  <select id="product" multiple size="20">
+    <optgroup label="🍦 IJS SMAKEN">
+      <option>Vanille ijs - €1.50</option>
+      <option>Chocolade ijs - €1.50</option>
+      <option>Aardbei ijs - €1.50</option>
+      <option>Pistache ijs - €1.80</option>
+      <option>Hazelnootijs - €1.80</option>
+      <option>Stracciatella ijs - €1.80</option>
+      <option>Cookies ijs - €2.20</option>
+      <option>Zoute karamelijs - €2.20</option>
+      <option>Yoghurtijs - €2.00</option>
+      <option>Koffie ijs - €2.00</option>
+      <option>Kokos ijs - €2.00</option>
+      <option>Softijs - €1.50</option>
+      <option>Waterijsje - €1.00</option>
+    </optgroup>
 
-  <optgroup label="🍧 SORBET SMAKEN">
-    <option>Mango sorbet - €2.00</option>
-    <option>Citroen sorbet - €2.00</option>
-    <option>Framboos sorbet - €2.00</option>
-    <option>Watermeloen sorbet - €2.00</option>
-    <option>Appel sorbet - €2.00</option>
-    <option>Passievrucht sorbet - €2.00</option>
-  </optgroup>
+    <optgroup label="🍧 SORBET SMAKEN">
+      <option>Mangosorbet - €2.00</option>
+      <option>Citroensorbet - €2.00</option>
+      <option>Framboos sorbet - €2.00</option>
+      <option>Watermeloensorbet - €2.00</option>
+      <option>Appelsorbet - €2.00</option>
+      <option>Passievrucht sorbet - €2.00</option>
+    </optgroup>
 
-  <optgroup label="☕ KOFFIE & DRANKEN">
-    <option>Espresso - €2.00</option>
-    <option>Cappuccino - €2.50</option>
-    <option>Latte - €2.70</option>
-    <option>Flat white - €2.70</option>
-    <option>Americano - €2.00</option>
-    <option>Warme chocolademelk - €2.50</option>
-    <option>Thee (groen) - €1.50</option>
-    <option>Thee (zwart) - €1.50</option>
-    <option>Thee (kruiden) - €1.50</option>
-    <option>IJskoffie - €2.50</option>
-    <option>IJsthee - €2.00</option>
-    <option>Smoothie - €3.00</option>
-    <option>Milkshake - €3.00</option>
-    <option>Water plat - €1.00</option>
-    <option>Water bruisend - €1.00</option>
-    <option>Cola - €1.80</option>
-    <option>Fanta - €1.80</option>
-    <option>7up - €1.80</option>
-    <option>Tonic - €1.80</option>
-    <option>Sinaasappelsap - €2.00</option>
-    <option>Appelsap - €2.00</option>
-    <option>Multivitaminesap - €2.00</option>
-    <option>Energiedrank - €2.20</option>
-  </optgroup>
+    <optgroup label="☕ KOFFIE & DRANKEN">
+      <option>Espresso - €2.00</option>
+      <option>Cappuccino - €2.50</option>
+      <option>Latte - €2.70</option>
+      <option>Flat white - €2.70</option>
+      <option>Americano - €2.00</option>
+      <option>Warme chocolademelk - €2.50</option>
+      <option>Thee (groen) - €1.50</option>
+      <option>Thee (zwart) - €1.50</option>
+      <option>Thee (kruiden) - €1.50</option>
+      <option>IJskoffie - €2.50</option>
+      <option>IJsthee - €2.00</option>
+      <option>Smoothie - €3.00</option>
+      <option>Milkshake - €3.00</option>
+      <option>Cola - €1.80</option>
+      <option>Fanta - €1.80</option>
+      <option>7up - €1.80</option>
+      <option>Tonic - €1.80</option>
+      <option>Sinaasappelsap - €2.00</option>
+      <option>Appelsap - €2.00</option>
+      <option>Multivitaminesap - €2.00</option>
+      <option>Water plat - €1.00</option>
+      <option>Water bruisend - €1.00</option>
+      <option>Energiedrank - €2.20</option>
+    </optgroup>
 
-  <optgroup label="🍟 SNACKS">
-    <option>Patat met saus - €3.00</option>
-    <option>Kaassoufflé - €1.80</option>
-    <option>Kroket - €1.80</option>
-    <option>Frikandel - €1.80</option>
-    <option>Bamischijf - €2.00</option>
-    <option>Loempia - €2.50</option>
-    <option>Hotdog - €3.00</option>
-    <option>Hamburger - €4.00</option>
-    <option>Wafel - €2.50</option>
-    <option>Suikerspin - €2.00</option>
-    <option>Poffertjes - €3.00</option>
-    <option>Oliebollen - €2.00</option>
-    <option>Haringsandwich - €3.00</option>
-    <option>Kibbeling - €4.00</option>
-    <option>Lekkerbekje - €4.00</option>
-  </optgroup>
-</select>
-"""
+    <optgroup label="🍟 SNACKS & FASTFOOD">
+      <option>Patat met saus - €3.00</option>
+      <option>Kaassoufflé - €1.80</option>
+      <option>Kroket - €1.80</option>
+      <option>Frikandel - €1.80</option>
+      <option>Bamischijf - €2.00</option>
+      <option>Loempia - €2.50</option>
+      <option>Hotdog - €3.00</option>
+      <option>Hamburger - €4.00</option>
+    </optgroup>
 
-# Combine all options into one flat list (no optgroup)
-soup = BeautifulSoup(html_content, 'html.parser')
-flat_select = soup.new_tag("select", id="product", multiple=True, size="30")
+    <optgroup label="🍭 ZOETIGHEDEN & SEIZOEN">
+      <option>Wafel - €2.50</option>
+      <option>Suikerspin - €2.00</option>
+      <option>Poffertjes - €3.00</option>
+      <option>Oliebollen - €2.00</option>
+    </optgroup>
 
-for option in soup.find_all("option"):
-    flat_select.append(option)
+    <optgroup label="🐟 VISGERECHTEN">
+      <option>Haringsandwich - €3.00</option>
+      <option>Kibbeling - €4.00</option>
+      <option>Lekkerbekje - €4.00</option>
+    </optgroup>
+  </select>
 
-flat_html = str(flat_select)
-flat_html[:1000]  # Show preview
- 
+  <button onclick="voegToe()">➕ Voeg toe aan winkelmand</button>
+
+  <label for="korting">Korting (%)</label>
+  <input type="number" id="korting" placeholder="Bijv. 10">
+
+  <button onclick="berekenTotaal()">💰 Afrekenen</button>
+
+  <div class="bon" id="bon"></div>
+
+  <div id="qrcode-container">
+    <canvas id="qrcode"></canvas>
+  </div>
+
+  <div class="payment-instructions">
+    <p><strong>📱 Kies uw betaalmethode:</strong></p>
+    <div class="card-logos">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Maestro_2016.svg" alt="Maestro">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Ideal_logo.png" alt="iDEAL">
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    let winkelmand = [];
+    const btwPercentage = 21;
+
+    function parsePrijs(productText) {
+      return parseFloat(productText.split('€')[1]);
+    }
+
+    function voegToe() {
+      const select = document.getElementById('product');
+      const gekozenOpties = Array.from(select.selectedOptions);
+      gekozenOpties.forEach(option => {
+        winkelmand.push(option.value);
+      });
+      alert(`${gekozenOpties.length} product(en) toegevoegd aan winkelmand.`);
+    }
+
+    function berekenTotaal() {
+      let totaal = 0;
+      let bon = "<strong>🧾 Kassabon:</strong><br>";
+      winkelmand.forEach(item => {
+        let prijs = parsePrijs(item);
+        totaal += prijs;
+        bon += `${item}<br>`;
+      });
+
+      const kortingInput = document.getElementById('korting').value;
+      let korting = 0;
+      if (kortingInput) {
+        korting = totaal * (parseFloat(kortingInput) / 100);
+        bon += `Korting: -€${korting.toFixed(2)}<br>`;
+      }
+
+      totaal -= korting;
+      const btw = totaal * (btwPercentage / 100);
+      const eindTotaal = totaal + btw;
+
+      bon += `BTW (${btwPercentage}%): €${btw.toFixed(2)}<br>`;
+      bon += `<strong>Totaal: €${eindTotaal.toFixed(2)}</strong><br>`;
+
+      document.getElementById('bon').innerHTML = bon;
+
+      const qr = new QRious({
+        element: document.getElementById('qrcode'),
+        value: "https://voorbeeldbetaling.nl", // Je kan hier een echte betaallink gebruiken
+        size: 200
+      });
+    }
+  </script>
+</body>
+</html>
