@@ -1,275 +1,130 @@
-import React, { useState } from "react";
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kassa Simulator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background-color: #fdfdfd; color: #333; }
+    h1 { text-align: center; }
+    select, input, button { width: 100%; margin: 10px 0; padding: 10px; font-size: 16px; }
+    .bon { background: #f4f4f4; padding: 10px; margin-top: 20px; border: 1px solid #ccc; }
+    #qrcode-container { text-align: center; margin-top: 20px; }
+    .payment-instructions { text-align: center; margin-top: 20px; }
+    .card-logos { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .card-logos img { height: 40px; }
+  </style>
+</head>
+<body>
+  <h1>🧾 Echte Kassa Simulator</h1>
 
-const producten = {
-  "Groente & Fruit": [
-    { naam: "Appels", prijs: 1.00 },
-    { naam: "Peren", prijs: 1.10 },
-    { naam: "Bananen", prijs: 0.80 },
-    { naam: "Sinaasappels", prijs: 1.20 },
-    { naam: "Mango's", prijs: 1.50 },
-    { naam: "Ananas", prijs: 2.00 },
-    { naam: "Kiwi’s", prijs: 1.30 },
-    { naam: "Druiven", prijs: 2.20 },
-    { naam: "Aardbeien", prijs: 2.50 },
-    { naam: "Blauwe bessen", prijs: 2.50 },
-    { naam: "Frambozen", prijs: 2.50 },
-    { naam: "Tomaten", prijs: 1.10 },
-    { naam: "Komkommers", prijs: 0.90 },
-    { naam: "Paprika’s", prijs: 1.30 },
-    { naam: "Wortels", prijs: 0.70 },
-    { naam: "Broccoli", prijs: 1.20 },
-    { naam: "Bloemkool", prijs: 1.50 },
-    { naam: "Spinazie", prijs: 1.80 },
-    { naam: "Boerenkool", prijs: 1.70 },
-    { naam: "Sla", prijs: 1.00 },
-    { naam: "Avocado", prijs: 1.60 },
-    { naam: "Uien", prijs: 0.60 },
-    { naam: "Knoflook", prijs: 0.50 },
-    { naam: "Prei", prijs: 0.90 },
-    { naam: "Courgette", prijs: 1.10 },
-    { naam: "Aubergine", prijs: 1.20 },
-    { naam: "Champignons", prijs: 1.50 },
-    { naam: "Radijs", prijs: 0.80 },
-    { naam: "Bleekselderij", prijs: 1.00 },
-  ],
-  "Vlees, Vis & Vleesvervangers": [
-    Kipfilet 5.00
-    Gehakt", prijs: 4.50,
-   Biefstuk", prijs: 8.00
-    Speklapjes", prijs: 5.50
-    Varkenshaas", prijs: 7.00
-   Worstjes", prijs: 4.00
-    Schnitzel", prijs: 6.00
-    Zalm", prijs: 10.00
-    Tonijn", prijs: 9.00
-    Kabeljauw", prijs: 8.50
-    Garnalen", prijs: 12.00
-      Haring", prijs: 6.50 },
-    { naam: "Makreel", prijs: 7.00 },
-    { naam: "Tofu", prijs: 3.50 },
-    { naam: "Tempeh", prijs: 3.50 },
-    { naam: "Vegetarische burgers", prijs: 4.00 },
-    { naam: "Falafel", prijs: 3.00 },
-    { naam: "Plantaardige balletjes", prijs: 3.00 },
-  ],
-  "Zuivel & Eieren": [
-    { naam: "Melk vol", prijs: 1.20 },
-    { naam: "Melk halfvol", prijs: 1.10 },
-    { naam: "Melk mager", prijs: 1.00 },
-    { naam: "Yoghurt", prijs: 1.30 },
-    { naam: "Kwark", prijs: 1.50 },
-    { naam: "Karnemelk", prijs: 1.10 },
-    { naam: "Slagroom", prijs: 1.50 },
-    { naam: "Kaas jong", prijs: 3.50 },
-    { naam: "Kaas belegen", prijs: 3.70 },
-    { naam: "Kaas oud", prijs: 4.00 },
-    { naam: "Geitenkaas", prijs: 4.20 },
-    { naam: "Mozzarella", prijs: 3.50 },
-    { naam: "Feta", prijs: 3.80 },
-    { naam: "Parmezaan", prijs: 5.00 },
-    { naam: "Boter", prijs: 2.00 },
-    { naam: "Margarine", prijs: 1.80 },
-    { naam: "Eieren scharrel", prijs: 2.50 },
-    { naam: "Eieren biologisch", prijs: 3.00 },
-  ],
-  "Brood & Banket": [
-    { naam: "Witbrood", prijs: 2.00 },
-    { naam: "Bruinbrood", prijs: 2.00 },
-    { naam: "Volkorenbrood", prijs: 2.20 },
-    { naam: "Zuurdesem", prijs: 2.50 },
-    { naam: "Croissants", prijs: 1.50 },
-    { naam: "Stokbrood", prijs: 1.80 },
-    { naam: "Pistolets", prijs: 1.20 },
-    { naam: "Bagels", prijs: 1.80 },
-    { naam: "Beschuit", prijs: 1.00 },
-    { naam: "Crackers", prijs: 1.20 },
-    { naam: "Knäckebröd", prijs: 1.10 },
-    { naam: "Rijstwafels", prijs: 1.00 },
-    { naam: "Koekjes", prijs: 1.50 },
-    { naam: "Cakes", prijs: 2.00 },
-    { naam: "Muffins", prijs: 1.80 },
-    { naam: "Donuts", prijs: 1.20 },
-    { naam: "Taarten", prijs: 10.00 },
-  ],
-  // Hier kun je de rest toevoegen volgens je lijst
-};
+  <label for="product">Selecteer producten (meerdere):</label>
+  <select id="product" multiple size="10">
+    <!-- Groenten -->
+    <option>Appel - €1.00</option>
+    <option>Banaan - €0.80</option>
+    <option>Druiven - €2.20</option>
 
-export default function KassaSimulator() {
-  const [gekozenCategorie, setGekozenCategorie] = useState(null);
-  const [winkelwagen, setWinkelwagen] = useState({});
-  const [korting, setKorting] = useState(0);
-  const [kortingInvoeren, setKortingInvoeren] = useState(false);
-  const [betaalKeuze, setBetaalKeuze] = useState(null);
+    <!-- Vlees -->
+    <option>Gehakt - €4.00</option>
+    <option>Kipfilet - €3.80</option>
+    <option>Biefstuk - €6.50</option>
 
-  function voegToe(product) {
-    setWinkelwagen((prev) => {
-      const nieuweAantal = (prev[product.naam]?.aantal || 0) + 1;
-      return {
-        ...prev,
-        [product.naam]: { ...product, aantal: nieuweAantal },
-      };
-    });
-  }
+    <!-- Drank -->
+    <option>Bier - €2.50</option>
+    <option>Sap - €2.00</option>
+    <option>Water - €0.90</option>
+  </select>
 
-  function verwijder(productNaam) {
-    setWinkelwagen((prev) => {
-      const nieuw = { ...prev };
-      if (nieuw[productNaam]) {
-        if (nieuw[productNaam].aantal > 1) {
-          nieuw[productNaam].aantal -= 1;
-        } else {
-          delete nieuw[productNaam];
-        }
-      }
-      return nieuw;
-    });
-  }
+  <button onclick="voegToe()">➕ Voeg toe aan winkelmand</button>
+  <button onclick="vraagKortingsbon()">🎟️ Kortingsbon?</button>
+  <button onclick="vraagSpecial()">🌟 Special van het huis?</button>
 
-  function totaalPrijs() {
-    const totaal = Object.values(winkelwagen).reduce(
-      (acc, p) => acc + p.prijs * p.aantal,
-      0
-    );
-    return totaal * ((100 - korting) / 100);
-  }
+  <label for="korting">Korting (%)</label>
+  <input type="number" id="korting" placeholder="Bijv. 10">
 
-  return (
-    <div style={{ padding: 20, fontFamily: "Arial, sans-serif", maxWidth: 600, margin: "auto" }}>
-      {!gekozenCategorie ? (
-        <>
-          <h1>Kies een categorie</h1>
-          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-            {Object.keys(producten).map((cat) => (
-              <li
-                key={cat}
-                style={{
-                  cursor: "pointer",
-                  padding: 10,
-                  border: "1px solid #ccc",
-                  marginBottom: 6,
-                  borderRadius: 6,
-                }}
-                onClick={() => setGekozenCategorie(cat)}
-              >
-                {cat}
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <>
-          <button onClick={() => setGekozenCategorie(null)} style={{ marginBottom: 20 }}>
-            ← Terug naar categorieën
-          </button>
-          <h2>{gekozenCategorie}</h2>
-          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-            {producten[gekozenCategorie].map((product) => (
-              <li
-                key={product.naam}
-                style={{
-                  borderBottom: "1px solid #eee",
-                  padding: 8,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <span>
-                  {product.naam} — €{product.prijs.toFixed(2)}
-                </span>
-                <button onClick={() => voegToe(product)}>+ Toevoegen</button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+  <button onclick="berekenTotaal()">💰 Afrekenen</button>
 
-      <hr />
-
-      <h2>Winkelwagen</h2>
-      {Object.keys(winkelwagen).length === 0 ? (
-        <p>Je winkelwagen is leeg</p>
-      ) : (
-        <>
-          {Object.values(winkelwagen).map((item) => (
-            <div
-              key={item.naam}
-              style={{
-                marginBottom: 12,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>
-                {item.naam} — {item.aantal} × €{item.prijs.toFixed(2)} = €
-                {(item.aantal * item.prijs).toFixed(2)}
-              </span>
-              <span>
-                <button onClick={() => voegToe(item)}>+</button>{" "}
-                <button onClick={() => verwijder(item.naam)}>-</button>
-              </span>
-            </div>
-          ))}
-
-          {!kortingInvoeren ? (
-            <button onClick={() => setKortingInvoeren(true)} style={{ marginBottom: 10 }}>
-              Korting invoeren
-            </button>
-          ) : (
-            <div style={{ marginBottom: 10 }}>
-              <input
-                type="number"
-                value={korting}
-                onChange={(e) => setKorting(Number(e.target.value))}
-                min={0}
-                max={100}
-                placeholder="Kortingspercentage"
-                style={{ width: 120, marginRight: 10 }}
-              />
-              <button onClick={() => setKortingInvoeren(false)}>Bevestigen</button>
-            </div>
-          )}
-
-          <h3>Totaal: €{totaalPrijs().toFixed(2)}</h3>
-
-          {!betaalKeuze ? (
-            <>
-              <p>Betaal met:</p>
-              <button onClick={() => setBetaalKeuze("bancontact")} style={{ marginRight: 10 }}>
-                Bancontact
-              </button>
-              <button onClick={() => setBetaalKeuze("cash")}>Cash</button>
-            </>
-          ) : (
-            <>
-              {betaalKeuze === "bancontact" && (
-                <>
-                  <p>Scan de QR-code hieronder om te betalen (demo QR-code):</p>
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bancontact-demo"
-                    alt="Bancontact QR-code"
-                  />
-                </>
-              )}
-              {betaalKeuze === "cash" && <p>Betaal contant aan de kassa.</p>}
-
-              <button
-                onClick={() => {
-                  setWinkelwagen({});
-                  setKorting(0);
-                  setBetaalKeuze(null);
-                }}
-                style={{ marginTop: 10 }}
-              >
-                Transactie afronden
-              </button>
-            </>
-          )}
-        </>
-      )}
+  <div class="bon" id="bon"></div>
+  <div id="qrcode-container">
+    <canvas id="qrcode"></canvas>
+  </div>
+  <div class="payment-instructions">
+    <p><strong>📱 Houd uw kaart hier</strong></p>
+    <div class="card-logos">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Maestro_2016.svg" alt="Maestro">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Ideal_logo.png" alt="iDEAL">
     </div>
-  );
-}
+  </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    let winkelmand = [];
+    const btwPercentage = 21;
 
+    function parsePrijs(productText) {
+      return parseFloat(productText.split('€')[1]);
+    }
+
+    function voegToe() {
+      const select = document.getElementById('product');
+      const gekozenOpties = Array.from(select.selectedOptions);
+      gekozenOpties.forEach(option => {
+        winkelmand.push(option.value);
+      });
+      alert(`${gekozenOpties.length} product(en) toegevoegd aan winkelmand.`);
+    }
+
+    function vraagKortingsbon() {
+      const antwoord = prompt("Heeft u een kortingsbon? (ja/nee)");
+      if (antwoord && antwoord.toLowerCase() === 'ja') {
+        alert("Voer het kortingspercentage in het veld hieronder in.");
+      } else {
+        alert("Geen probleem!");
+      }
+    }
+
+    function vraagSpecial() {
+      const antwoord = confirm("Wilt u onze special van het huis toevoegen? (Bitterbalenschotel - €3.00)");
+      if (antwoord) {
+        winkelmand.push("Bitterbalenschotel - €3.00");
+        alert("Special toegevoegd!");
+      }
+    }
+
+    function berekenTotaal() {
+      let totaal = 0;
+      let bon = "<strong>Bonoverzicht:</strong><br>";
+      winkelmand.forEach(item => {
+        let prijs = parsePrijs(item);
+        totaal += prijs;
+        bon += `${item}<br>`;
+      });
+
+      const kortingInput = document.getElementById('korting').value;
+      let korting = 0;
+      if (kortingInput) {
+        korting = totaal * (parseFloat(kortingInput) / 100);
+        bon += `Korting: -€${korting.toFixed(2)}<br>`;
+      }
+
+      totaal -= korting;
+      const btw = totaal * (btwPercentage / 100);
+      const eindTotaal = totaal + btw;
+
+      bon += `BTW (${btwPercentage}%): €${btw.toFixed(2)}<br>`;
+      bon += `<strong>Totaal: €${eindTotaal.toFixed(2)}</strong><br>`;
+
+      document.getElementById('bon').innerHTML = bon;
+
+      new QRious({
+        element: document.getElementById('qrcode'),
+        value: "https://example.com/betalen",
+        size: 200
+      });
+    }
+  </script>
+</body>
+</html>
