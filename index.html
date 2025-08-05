@@ -1,130 +1,159 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kassa Simulator</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background-color: #fdfdfd; color: #333; }
-    h1 { text-align: center; }
-    select, input, button { width: 100%; margin: 10px 0; padding: 10px; font-size: 16px; }
-    .bon { background: #f4f4f4; padding: 10px; margin-top: 20px; border: 1px solid #ccc; }
-    #qrcode-container { text-align: center; margin-top: 20px; }
-    .payment-instructions { text-align: center; margin-top: 20px; }
-    .card-logos { display: flex; justify-content: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-    .card-logos img { height: 40px; }
-  </style>
-</head>
-<body>
-  <h1>🧾 Echte Kassa Simulator</h1>
+import React, { useState } from "react";
 
-  <label for="product">Selecteer producten (meerdere):</label>
-  <select id="product" multiple size="10">
-    <!-- Groenten -->
-    <option>Appel - €1.00</option>
-    <option>Banaan - €0.80</option>
-    <option>Druiven - €2.20</option>
+const producten = {
+  // ...gebruik hier je hele productlijst
+};
 
-    <!-- Vlees -->
-    <option>Gehakt - €4.00</option>
-    <option>Kipfilet - €3.80</option>
-    <option>Biefstuk - €6.50</option>
+export default function WinkelApp() {
+  const [gekozenCategorie, setGekozenCategorie] = useState(null);
+  const [winkelwagen, setWinkelwagen] = useState({});
+  const [korting, setKorting] = useState(0);
+  const [kortingInvoeren, setKortingInvoeren] = useState(false);
+  const [betaalKeuze, setBetaalKeuze] = useState(null); // "bancontact" of "cash"
 
-    <!-- Drank -->
-    <option>Bier - €2.50</option>
-    <option>Sap - €2.00</option>
-    <option>Water - €0.90</option>
-  </select>
+  function voegToe(product) {
+    setWinkelwagen((prev) => {
+      const nieuweAantal = (prev[product.naam]?.aantal || 0) + 1;
+      return {
+        ...prev,
+        [product.naam]: { ...product, aantal: nieuweAantal },
+      };
+    });
+  }
 
-  <button onclick="voegToe()">➕ Voeg toe aan winkelmand</button>
-  <button onclick="vraagKortingsbon()">🎟️ Kortingsbon?</button>
-  <button onclick="vraagSpecial()">🌟 Special van het huis?</button>
+  function verwijder(productNaam) {
+    setWinkelwagen((prev) => {
+      const nieuw = { ...prev };
+      if (nieuw[productNaam]) {
+        if (nieuw[productNaam].aantal > 1) {
+          nieuw[productNaam].aantal -= 1;
+        } else {
+          delete nieuw[productNaam];
+        }
+      }
+      return nieuw;
+    });
+  }
 
-  <label for="korting">Korting (%)</label>
-  <input type="number" id="korting" placeholder="Bijv. 10">
+  function totaalPrijs() {
+    const totaal = Object.values(winkelwagen).reduce(
+      (acc, p) => acc + p.prijs * p.aantal,
+      0
+    );
+    return totaal * ((100 - korting) / 100);
+  }
 
-  <button onclick="berekenTotaal()">💰 Afrekenen</button>
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      {!gekozenCategorie && (
+        <>
+          <h1>Kies een categorie</h1>
+          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+            {Object.keys(producten).map((cat) => (
+              <li
+                key={cat}
+                style={{
+                  cursor: "pointer",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  margin: "5px 0",
+                  borderRadius: "5px",
+                }}
+                onClick={() => setGekozenCategorie(cat)}
+              >
+                {cat}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
-  <div class="bon" id="bon"></div>
-  <div id="qrcode-container">
-    <canvas id="qrcode"></canvas>
-  </div>
-  <div class="payment-instructions">
-    <p><strong>📱 Houd uw kaart hier</strong></p>
-    <div class="card-logos">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Maestro_2016.svg" alt="Maestro">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Ideal_logo.png" alt="iDEAL">
+      {gekozenCategorie && (
+        <>
+          <button onClick={() => setGekozenCategorie(null)} style={{ marginBottom: "10px" }}>
+            ← Terug naar categorieën
+          </button>
+          <h2>Producten in {gekozenCategorie}</h2>
+          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+            {producten[gekozenCategorie].map((product) => (
+              <li
+                key={product.naam}
+                style={{ padding: "6px", borderBottom: "1px solid #eee" }}
+              >
+                {product.naam} — €{product.prijs.toFixed(2)}{" "}
+                <button onClick={() => voegToe(product)} style={{ marginLeft: "10px" }}>
+                  + Toevoegen
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      <hr />
+
+      <h2>Winkelwagen</h2>
+      {Object.keys(winkelwagen).length === 0 && <p>Je winkelwagen is leeg</p>}
+      {Object.values(winkelwagen).map((item) => (
+        <div key={item.naam} style={{ marginBottom: "10px" }}>
+          {item.naam} — {item.aantal} × €{item.prijs.toFixed(2)} = €
+          {(item.aantal * item.prijs).toFixed(2)}{" "}
+          <button onClick={() => voegToe(item)}>+</button>{" "}
+          <button onClick={() => verwijder(item.naam)}>-</button>
+        </div>
+      ))}
+
+      {Object.keys(winkelwagen).length > 0 && (
+        <>
+          {!kortingInvoeren ? (
+            <button onClick={() => setKortingInvoeren(true)}>Korting invoeren</button>
+          ) : (
+            <>
+              <input
+                type="number"
+                value={korting}
+                onChange={(e) => setKorting(Number(e.target.value))}
+                max={100}
+                min={0}
+                placeholder="Kortingspercentage"
+                style={{ width: "100px", marginRight: "10px" }}
+              />
+              <button onClick={() => setKortingInvoeren(false)}>Bevestigen</button>
+            </>
+          )}
+
+          <h3>Totaal: €{totaalPrijs().toFixed(2)}</h3>
+
+          {!betaalKeuze ? (
+            <>
+              <p>Betaal met:</p>
+              <button onClick={() => setBetaalKeuze("bancontact")}>Bancontact</button>{" "}
+              <button onClick={() => setBetaalKeuze("cash")}>Cash</button>
+            </>
+          ) : (
+            <>
+              {betaalKeuze === "bancontact" && (
+                <>
+                  <p>Scan de QR-code hieronder om te betalen (demo QR-code):</p>
+                  <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bancontact-demo"
+                    alt="Bancontact QR-code"
+                  />
+                </>
+              )}
+              {betaalKeuze === "cash" && <p>Betaal contant aan de kassa.</p>}
+
+              <button onClick={() => {
+                setWinkelwagen({});
+                setKorting(0);
+                setBetaalKeuze(null);
+              }}>
+                Transactie afronden
+              </button>
+            </>
+          )}
+        </>
+      )}
     </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <script>
-    let winkelmand = [];
-    const btwPercentage = 21;
-
-    function parsePrijs(productText) {
-      return parseFloat(productText.split('€')[1]);
-    }
-
-    function voegToe() {
-      const select = document.getElementById('product');
-      const gekozenOpties = Array.from(select.selectedOptions);
-      gekozenOpties.forEach(option => {
-        winkelmand.push(option.value);
-      });
-      alert(`${gekozenOpties.length} product(en) toegevoegd aan winkelmand.`);
-    }
-
-    function vraagKortingsbon() {
-      const antwoord = prompt("Heeft u een kortingsbon? (ja/nee)");
-      if (antwoord && antwoord.toLowerCase() === 'ja') {
-        alert("Voer het kortingspercentage in het veld hieronder in.");
-      } else {
-        alert("Geen probleem!");
-      }
-    }
-
-    function vraagSpecial() {
-      const antwoord = confirm("Wilt u onze special van het huis toevoegen? (Bitterbalenschotel - €3.00)");
-      if (antwoord) {
-        winkelmand.push("Bitterbalenschotel - €3.00");
-        alert("Special toegevoegd!");
-      }
-    }
-
-    function berekenTotaal() {
-      let totaal = 0;
-      let bon = "<strong>Bonoverzicht:</strong><br>";
-      winkelmand.forEach(item => {
-        let prijs = parsePrijs(item);
-        totaal += prijs;
-        bon += `${item}<br>`;
-      });
-
-      const kortingInput = document.getElementById('korting').value;
-      let korting = 0;
-      if (kortingInput) {
-        korting = totaal * (parseFloat(kortingInput) / 100);
-        bon += `Korting: -€${korting.toFixed(2)}<br>`;
-      }
-
-      totaal -= korting;
-      const btw = totaal * (btwPercentage / 100);
-      const eindTotaal = totaal + btw;
-
-      bon += `BTW (${btwPercentage}%): €${btw.toFixed(2)}<br>`;
-      bon += `<strong>Totaal: €${eindTotaal.toFixed(2)}</strong><br>`;
-
-      document.getElementById('bon').innerHTML = bon;
-
-      new QRious({
-        element: document.getElementById('qrcode'),
-        value: "https://example.com/betalen",
-        size: 200
-      });
-    }
-  </script>
-</body>
-</html>
+  );
+}
