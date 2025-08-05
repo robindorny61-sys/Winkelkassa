@@ -1,159 +1,86 @@
-import React, { useState } from "react";
+from bs4 import BeautifulSoup
 
-const producten = {
-  // ...gebruik hier je hele productlijst
-};
+# Original HTML code from user
+html_content = """
+<select id="product" multiple size="20">
+  <optgroup label="🍦 IJS SMAKEN">
+    <option>Vanille ijs - €1.50</option>
+    <option>Chocolade ijs - €1.50</option>
+    <option>Aardbei ijs - €1.50</option>
+    <option>Pistache ijs - €1.80</option>
+    <option>Hazelnoot ijs - €1.80</option>
+    <option>Stracciatella ijs - €1.80</option>
+    <option>Cookies ijs - €2.20</option>
+    <option>Salted caramel ijs - €2.20</option>
+    <option>Yoghurtijs - €2.00</option>
+    <option>Koffie ijs - €2.00</option>
+    <option>Kokos ijs - €2.00</option>
+    <option>Softijs - €1.50</option>
+    <option>Waterijsje - €1.00</option>
+  </optgroup>
 
-export default function WinkelApp() {
-  const [gekozenCategorie, setGekozenCategorie] = useState(null);
-  const [winkelwagen, setWinkelwagen] = useState({});
-  const [korting, setKorting] = useState(0);
-  const [kortingInvoeren, setKortingInvoeren] = useState(false);
-  const [betaalKeuze, setBetaalKeuze] = useState(null); // "bancontact" of "cash"
+  <optgroup label="🍧 SORBET SMAKEN">
+    <option>Mango sorbet - €2.00</option>
+    <option>Citroen sorbet - €2.00</option>
+    <option>Framboos sorbet - €2.00</option>
+    <option>Watermeloen sorbet - €2.00</option>
+    <option>Appel sorbet - €2.00</option>
+    <option>Passievrucht sorbet - €2.00</option>
+  </optgroup>
 
-  function voegToe(product) {
-    setWinkelwagen((prev) => {
-      const nieuweAantal = (prev[product.naam]?.aantal || 0) + 1;
-      return {
-        ...prev,
-        [product.naam]: { ...product, aantal: nieuweAantal },
-      };
-    });
-  }
+  <optgroup label="☕ KOFFIE & DRANKEN">
+    <option>Espresso - €2.00</option>
+    <option>Cappuccino - €2.50</option>
+    <option>Latte - €2.70</option>
+    <option>Flat white - €2.70</option>
+    <option>Americano - €2.00</option>
+    <option>Warme chocolademelk - €2.50</option>
+    <option>Thee (groen) - €1.50</option>
+    <option>Thee (zwart) - €1.50</option>
+    <option>Thee (kruiden) - €1.50</option>
+    <option>IJskoffie - €2.50</option>
+    <option>IJsthee - €2.00</option>
+    <option>Smoothie - €3.00</option>
+    <option>Milkshake - €3.00</option>
+    <option>Water plat - €1.00</option>
+    <option>Water bruisend - €1.00</option>
+    <option>Cola - €1.80</option>
+    <option>Fanta - €1.80</option>
+    <option>7up - €1.80</option>
+    <option>Tonic - €1.80</option>
+    <option>Sinaasappelsap - €2.00</option>
+    <option>Appelsap - €2.00</option>
+    <option>Multivitaminesap - €2.00</option>
+    <option>Energiedrank - €2.20</option>
+  </optgroup>
 
-  function verwijder(productNaam) {
-    setWinkelwagen((prev) => {
-      const nieuw = { ...prev };
-      if (nieuw[productNaam]) {
-        if (nieuw[productNaam].aantal > 1) {
-          nieuw[productNaam].aantal -= 1;
-        } else {
-          delete nieuw[productNaam];
-        }
-      }
-      return nieuw;
-    });
-  }
+  <optgroup label="🍟 SNACKS">
+    <option>Patat met saus - €3.00</option>
+    <option>Kaassoufflé - €1.80</option>
+    <option>Kroket - €1.80</option>
+    <option>Frikandel - €1.80</option>
+    <option>Bamischijf - €2.00</option>
+    <option>Loempia - €2.50</option>
+    <option>Hotdog - €3.00</option>
+    <option>Hamburger - €4.00</option>
+    <option>Wafel - €2.50</option>
+    <option>Suikerspin - €2.00</option>
+    <option>Poffertjes - €3.00</option>
+    <option>Oliebollen - €2.00</option>
+    <option>Haringsandwich - €3.00</option>
+    <option>Kibbeling - €4.00</option>
+    <option>Lekkerbekje - €4.00</option>
+  </optgroup>
+</select>
+"""
 
-  function totaalPrijs() {
-    const totaal = Object.values(winkelwagen).reduce(
-      (acc, p) => acc + p.prijs * p.aantal,
-      0
-    );
-    return totaal * ((100 - korting) / 100);
-  }
+# Combine all options into one flat list (no optgroup)
+soup = BeautifulSoup(html_content, 'html.parser')
+flat_select = soup.new_tag("select", id="product", multiple=True, size="30")
 
-  return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      {!gekozenCategorie && (
-        <>
-          <h1>Kies een categorie</h1>
-          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-            {Object.keys(producten).map((cat) => (
-              <li
-                key={cat}
-                style={{
-                  cursor: "pointer",
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                  margin: "5px 0",
-                  borderRadius: "5px",
-                }}
-                onClick={() => setGekozenCategorie(cat)}
-              >
-                {cat}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+for option in soup.find_all("option"):
+    flat_select.append(option)
 
-      {gekozenCategorie && (
-        <>
-          <button onClick={() => setGekozenCategorie(null)} style={{ marginBottom: "10px" }}>
-            ← Terug naar categorieën
-          </button>
-          <h2>Producten in {gekozenCategorie}</h2>
-          <ul style={{ listStyle: "none", paddingLeft: 0 }}>
-            {producten[gekozenCategorie].map((product) => (
-              <li
-                key={product.naam}
-                style={{ padding: "6px", borderBottom: "1px solid #eee" }}
-              >
-                {product.naam} — €{product.prijs.toFixed(2)}{" "}
-                <button onClick={() => voegToe(product)} style={{ marginLeft: "10px" }}>
-                  + Toevoegen
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      <hr />
-
-      <h2>Winkelwagen</h2>
-      {Object.keys(winkelwagen).length === 0 && <p>Je winkelwagen is leeg</p>}
-      {Object.values(winkelwagen).map((item) => (
-        <div key={item.naam} style={{ marginBottom: "10px" }}>
-          {item.naam} — {item.aantal} × €{item.prijs.toFixed(2)} = €
-          {(item.aantal * item.prijs).toFixed(2)}{" "}
-          <button onClick={() => voegToe(item)}>+</button>{" "}
-          <button onClick={() => verwijder(item.naam)}>-</button>
-        </div>
-      ))}
-
-      {Object.keys(winkelwagen).length > 0 && (
-        <>
-          {!kortingInvoeren ? (
-            <button onClick={() => setKortingInvoeren(true)}>Korting invoeren</button>
-          ) : (
-            <>
-              <input
-                type="number"
-                value={korting}
-                onChange={(e) => setKorting(Number(e.target.value))}
-                max={100}
-                min={0}
-                placeholder="Kortingspercentage"
-                style={{ width: "100px", marginRight: "10px" }}
-              />
-              <button onClick={() => setKortingInvoeren(false)}>Bevestigen</button>
-            </>
-          )}
-
-          <h3>Totaal: €{totaalPrijs().toFixed(2)}</h3>
-
-          {!betaalKeuze ? (
-            <>
-              <p>Betaal met:</p>
-              <button onClick={() => setBetaalKeuze("bancontact")}>Bancontact</button>{" "}
-              <button onClick={() => setBetaalKeuze("cash")}>Cash</button>
-            </>
-          ) : (
-            <>
-              {betaalKeuze === "bancontact" && (
-                <>
-                  <p>Scan de QR-code hieronder om te betalen (demo QR-code):</p>
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bancontact-demo"
-                    alt="Bancontact QR-code"
-                  />
-                </>
-              )}
-              {betaalKeuze === "cash" && <p>Betaal contant aan de kassa.</p>}
-
-              <button onClick={() => {
-                setWinkelwagen({});
-                setKorting(0);
-                setBetaalKeuze(null);
-              }}>
-                Transactie afronden
-              </button>
-            </>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
+flat_html = str(flat_select)
+flat_html[:1000]  # Show preview
+ 
