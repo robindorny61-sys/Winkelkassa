@@ -1,130 +1,409 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Kassa Simulatie</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: Arial; padding: 20px; max-width: 800px; margin: auto; }
-    .scherm { display: none; }
-    .zichtbaar { display: block; }
-    select, input, button { width: 100%; margin: 10px 0; padding: 10px; font-size: 16px; }
-    .bon { background: #f4f4f4; padding: 10px; margin-top: 20px; border: 1px solid #ccc; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Restaurant Bestelsysteem - Stapsgewijs</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 20px;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+  }
+  h1, h2, h3 {
+    color: #e67e22;
+  }
+  .container {
+    max-width: 600px;
+    margin: auto;
+    background: #34495e;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .step {
+    display: none;
+  }
+  .step.active {
+    display: block;
+  }
+  label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  input[type="number"], input[type="text"], input[type="date"], input[type="time"], select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    margin-top: 4px;
+  }
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+  .gerecht-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .gerecht-item input[type="number"] {
+    width: 50px;
+    padding: 5px;
+    border-radius: 4px;
+    border: none;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+  }
+  .buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  button {
+    background-color: #e67e22;
+    border: none;
+    padding: 12px 20px;
+    font-weight: bold;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #d35400;
+  }
+  button:disabled {
+    background-color: #7f8c8d;
+    cursor: default;
+  }
+  .totaal {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #f39c12;
+  }
+  .betaal-opties {
+    display: flex;
+    gap: 20px;
+  }
+  .betaal-opties label {
+    cursor: pointer;
+  }
+  #bericht {
+    margin-top: 20px;
+    background-color: #27ae60;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+  }
+</style>
 </head>
 <body>
-  <h1>🧾 Kassa Simulatie</h1>
 
-  <!-- Scherm 1: Producten kiezen -->
-  <div id="scherm1" class="scherm zichtbaar">
-    <h2>Stap 1: Kies producten</h2>
-    <select id="productSelect" multiple size="10">
-      <option>Vanille ijs - €1.50</option>
-      <option>Chocolade ijs - €1.50</option>
-      <option>Appelsap - €2.00</option>
-      <option>Cola - €1.80</option>
-      <option>Hamburger - €4.00</option>
-      <option>Frikandel - €1.80</option>
-      <option>Broccoli - €1.50</option>
-      <option>Komkommer - €1.50</option>
-      <option>macaronss - €3.70</option>
-      <option>Boulet - €9.00</option>
-      <option>Koffie - €2.80</option>
-      <option>Boulet - €4.00</option>
-      <option>Van de chef(huis) - €15.50</option>
-      <option> Tagiatelle met spek en spinazie - €22.50</option>
-      <option> Water - €1.00</option>
-    </select>
-    <button onclick="volgendeStap(1)">Volgende</button>
-  </div>
+<div class="container">
+  <h1>Restaurant Bestelsysteem</h1>
+  <form id="bestelForm">
 
-  <!-- Scherm 2: Bevestiging -->
-  <div id="scherm2" class="scherm">
-    <h2>Stap 2: Is dat alles?</h2>
-    <button onclick="volgendeStap(2)">Ja</button>
-    <button onclick="volgendeStap(2)">nee</button>
-  </div>
+    <!-- Stap 1: Reserveringsgegevens -->
+    <div class="step active" id="step-1">
+      <h2>1. Reserveringsgegevens</h2>
+      <label>
+        Naam klant:
+        <input type="text" id="naam" required placeholder="Naam invullen" />
+      </label>
+      <label>
+        Datum:
+        <input type="date" id="datum" required />
+      </label>
+      <label>
+        Tijd:
+        <input type="time" id="tijd" required />
+      </label>
+      <label>
+        Aantal personen:
+        <input type="number" id="aantal" min="1" required value="1" />
+      </label>
+    </div>
 
-  <!-- Scherm 3: Kortingsbon -->
-  <div id="scherm3" class="scherm">
-    <h2>Stap 3: Kortingsbon?</h2>
-    <label for="korting">Voer korting in (%):</label>
-    <input type="number" id="korting" placeholder="Bijv. 10">
-    <button onclick="volgendeStap(3)">Volgende</button>
-  </div>
+    <!-- Stap 2: Gerechten -->
+    <div class="step" id="step-2">
+      <h2>2. Kies gerechten</h2>
+      <div id="gerechtenLijst"></div>
+    </div>
 
-  <!-- Scherm 4: Betaalmethode -->
-  <div id="scherm4" class="scherm">
-    <h2>Stap 4: Betaalmethode</h2>
-    <button onclick="toonBon('kaart')">Betaal met kaart</button>
-    <button onclick="toonBon('contant')">Betaal contant</button>
-  </div>
+    <!-- Stap 3: Korting & Betaling -->
+    <div class="step" id="step-3">
+      <h2>3. Korting & Betaling</h2>
+      <label>
+        Korting (%):
+        <input type="number" id="korting" min="0" max="100" value="0" />
+      </label>
+      <label>Betaalmethode:</label>
+      <div class="betaal-opties">
+        <label><input type="radio" name="betaling" value="Contant" checked /> Contant</label>
+        <label><input type="radio" name="betaling" value="Kaart" /> Kaart</label>
+      </div>
+    </div>
 
-  <!-- Scherm 5: Bon -->
-  <div id="scherm5" class="scherm">
-    <h2>Stap 5: Kassabon</h2>
-    <div class="bon" id="bon"></div>
-    <canvas id="qrcode" style="margin-top: 20px;"></canvas>
-  </div>
+    <!-- Stap 4: Overzicht & Bevestigen -->
+    <div class="step" id="step-4">
+      <h2>4. Overzicht bestelling</h2>
+      <div id="overzicht"></div>
+      <div class="totaal" id="totaalPrijs">Totaal: €0,00</div>
+    </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <script>
-    let winkelmand = [];
+    <div class="buttons">
+      <button type="button" id="prevBtn" disabled>Terug</button>
+      <button type="button" id="nextBtn">Volgende</button>
+    </div>
 
-    function volgendeStap(nummer) {
-      const huidig = document.getElementById('scherm' + nummer);
-      const volgende = document.getElementById('scherm' + (nummer + 1));
-      huidig.classList.remove('zichtbaar');
-      volgende.classList.add('zichtbaar');
+  </form>
 
-      if (nummer === 1) {
-        const geselecteerd = Array.from(document.getElementById("productSelect").selectedOptions);
-        winkelmand = geselecteerd.map(opt => opt.value);
+  <div id="bericht"></div>
+</div>
+
+<script>
+  const gerechten = [
+    { naam: "IJs", prijs: 1.50 },
+    { naam: "Drinken", prijs: 1.80 },
+    { naam: "Hamburger", prijs: 4.00 },
+    { naam: "Frikandel", prijs: 1.80 },
+    { naam: "Broccoli", prijs: 1.50 },
+    { naam: "Komkommer", prijs: 1.50 },
+    { naam: "Macarons", prijs: 3.70 },
+    { naam: "Boulet (groot)", prijs: 9.00 },
+    { naam: "Koffie", prijs: 2.80 },
+    { naam: "Boulet (klein)", prijs: 4.00 },
+    { naam: "Van de chef (huis)", prijs: 15.50 },
+    { naam: "Tagliatelle met spek en spinazie", prijs: 22.50 },
+    { naam: "Water", prijs: 1.00 }
+  ];
+
+  const gerechtenLijstDiv = document.getElementById('gerechtenLijst');
+  const totaalPrijsDiv = document.getElementById('totaalPrijs');
+  const kortingInput = document.getElementById('korting');
+  const overzichtDiv = document.getElementById('overzicht');
+
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  // Bouw gerechtenlijst met checkboxes en aantal
+  gerechten.forEach((gerecht, index) => {
+    const div = document.createElement('div');
+    div.classList.add('gerecht-item');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'gerecht-' + index;
+    checkbox.dataset.index = index;
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+
+    const spanNaam = document.createElement('span');
+    spanNaam.textContent = `${gerecht.naam} - €${gerecht.prijs.toFixed(2)}`;
+
+    const aantalInput = document.createElement('input');
+    aantalInput.type = 'number';
+    aantalInput.min = 1;
+    aantalInput.value = 1;
+    aantalInput.disabled = true;
+
+    label.appendChild(checkbox);
+    label.appendChild(spanNaam);
+
+    div.appendChild(label);
+    div.appendChild(aantalInput);
+    gerechtenLijstDiv.appendChild(div);
+
+    // Schakel aantal in/uit als checkbox aan/uit gaat
+    checkbox.addEventListener('change', () => {
+      aantalInput.disabled = !checkbox.checked;
+      if (!checkbox.checked) {
+        aantalInput.value = 1;
       }
+    });
+  });
+
+  function showStep(step) {
+    for(let i=1; i<=totalSteps; i++) {
+      document.getElementById('step-' + i).classList.remove('active');
+    }
+    document.getElementById('step-' + step).classList.add('active');
+
+    // Knoppen aanpassen
+    document.getElementById('prevBtn').disabled = (step === 1);
+    if(step === totalSteps) {
+      document.getElementById('nextBtn').textContent = 'Bevestigen';
+      updateOverzicht();
+    } else {
+      document.getElementById('nextBtn').textContent = 'Volgende';
+    }
+  }
+
+  function updateOverzicht() {
+    const naam = document.getElementById('naam').value.trim();
+    const datum = document.getElementById('datum').value;
+    const tijd = document.getElementById('tijd').value;
+    const aantalPers = parseInt(document.getElementById('aantal').value);
+    const korting = parseFloat(kortingInput.value) || 0;
+    const betaling = document.querySelector('input[name="betaling"]:checked').value;
+
+    // Bestelde gerechten
+    let bestellingen = [];
+    gerechten.forEach((gerecht, index) => {
+      const checkbox = document.getElementById('gerecht-' + index);
+      const aantalInput = checkbox.parentElement.nextElementSibling;
+      if (checkbox.checked) {
+        const aantalGerecht = parseInt(aantalInput.value) || 1;
+        bestellingen.push({ gerecht: gerecht.naam, prijs: gerecht.prijs, aantal: aantalGerecht });
+      }
+    });
+
+    if(bestellingen.length === 0){
+      overzichtDiv.innerHTML = '<p><em>Geen gerechten geselecteerd.</em></p>';
+      totaalPrijsDiv.textContent = 'Totaal: €0,00';
+      return;
     }
 
-    function parsePrijs(tekst) {
-      return parseFloat(tekst.split("€")[1]);
+    let totaal = bestellingen.reduce((sum, item) => sum + item.prijs * item.aantal, 0);
+    if(korting > 0) {
+      totaal = totaal * (1 - korting / 100);
     }
+    totaal = Math.round(totaal * 100) / 100;
 
-    function toonBon(betaalmethode) {
-      document.getElementById('scherm4').classList.remove('zichtbaar');
-      document.getElementById('scherm5').classList.add('zichtbaar');
+    let html = `
+      <p><strong>Klant:</strong> ${naam}</p>
+      <p><strong>Datum & Tijd:</strong> ${datum} ${tijd}</p>
+      <p><strong>Aantal personen:</strong> ${aantalPers}</p>
+      <p><strong>Betaalmethode:</strong> ${betaling}</p>
+      <p><strong>Gerechten:</strong></p>
+      <ul>
+    `;
+    bestellingen.forEach(item => {
+      html += `<li>${item.gerecht} x${item.aantal} - €${(item.prijs * item.aantal).toFixed(2)}</li>`;
+    });
+    html += '</ul>';
+    if(korting > 0) {
+      html += `<p>Korting: ${korting}%</p>`;
+    }
+    overzichtDiv.innerHTML = html;
+    totaalPrijsDiv.textContent = `Totaal: €${totaal.toFixed(2)}`;
+  }
 
-      let totaal = 0;
-      let bon = "<strong>Producten:</strong><br>";
-      winkelmand.forEach(item => {
-        const prijs = parsePrijs(item);
-        totaal += prijs;
-        bon += `${item}<br>`;
+  // Form validatie voor stap 1 en stap 2
+  function validateStep(step) {
+    if(step === 1) {
+      const naam = document.getElementById('naam').value.trim();
+      const datum = document.getElementById('datum').value;
+      const tijd = document.getElementById('tijd').value;
+      const aantal = parseInt(document.getElementById('aantal').value);
+
+      if(!naam || !datum || !tijd || !aantal || aantal < 1) {
+        alert('Vul alle reserveringsgegevens correct in.');
+        return false;
+      }
+      return true;
+    } 
+    if(step === 2) {
+      let gekozen = false;
+      gerechten.forEach((gerecht, index) => {
+        const checkbox = document.getElementById('gerecht-' + index);
+        if(checkbox.checked) gekozen = true;
       });
-
-      const kortingInput = document.getElementById("korting").value;
-      let korting = 0;
-      if (kortingInput) {
-        korting = totaal * (parseFloat(kortingInput) / 100);
-        bon += `Korting: -€${korting.toFixed(2)}<br>`;
+      if(!gekozen){
+        alert('Kies minimaal één gerecht.');
+        return false;
       }
-
-      totaal -= korting;
-      const btw = totaal * 0.21;
-      const eindtotaal = totaal + btw;
-      bon += `BTW (21%): €${btw.toFixed(2)}<br>`;
-      bon += `<strong>Totaal: €${eindtotaal.toFixed(2)}</strong><br>`;
-      bon += `<br><em>Betaalmethode: ${betaalmethode}</em>`;
-
-      document.getElementById("bon").innerHTML = bon;
-
-      if (betaalmethode === 'kaart') {
-        new QRious({
-          element: document.getElementById("qrcode"),
-          value: "https://example.com/betalen",
-          size: 200
-        });
-      } else {
-        document.getElementById("qrcode").style.display = "none";
-      }
+      return true;
     }
-  </script>
+    return true;
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if(!validateStep(currentStep)) return;
+
+    if(currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      // Formulier versturen
+      submitBestelling();
+    }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if(currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  });
+
+  function submitBestelling() {
+    // Verzamelen gegevens opnieuw
+    const naam = document.getElementById('naam').value.trim();
+    const datum = document.getElementById('datum').value;
+    const tijd = document.getElementById('tijd').value;
+    const aantalPers = parseInt(document.getElementById('aantal').value);
+    const korting = parseFloat(kortingInput.value) || 0;
+    const betaling = document.querySelector('input[name="betaling"]:checked').value;
+
+    let bestellingen = [];
+    gerechten.forEach((gerecht, index) => {
+      const checkbox = document.getElementById('gerecht-' + index);
+      const aantalInput = checkbox.parentElement.nextElementSibling;
+      if (checkbox.checked) {
+        const aantalGerecht = parseInt(aantalInput.value) || 1;
+        bestellingen.push({ gerecht: gerecht.naam, prijs: gerecht.prijs, aantal: aantalGerecht });
+      }
+    });
+
+    let totaal = bestellingen.reduce((sum, item) => sum + item.prijs * item.aantal, 0);
+    if(korting > 0) {
+      totaal = totaal * (1 - korting / 100);
+    }
+    totaal = Math.round(totaal * 100) / 100;
+
+    // Toon bevestiging
+    const berichtDiv = document.getElementById('bericht');
+    berichtDiv.innerHTML = `<h3>Bestelling bevestigd!</h3>
+      <p><strong>Klant:</strong> ${naam}</p>
+      <p><strong>Datum & Tijd:</strong> ${datum} ${tijd}</p>
+      <p><strong>Aantal personen:</strong> ${aantalPers}</p>
+      <p><strong>Betaalmethode:</strong> ${betaling}</p>
+      <p><strong>Gerechten:</strong></p>
+      <ul>
+        ${bestellingen.map(item => `<li>${item.gerecht} x${item.aantal} - €${(item.prijs * item.aantal).toFixed(2)}</li>`).join('')}
+      </ul>
+      ${korting > 0 ? `<p>Korting: ${korting}%</p>` : ''}
+      <p class="totaal">Totaal te betalen: €${totaal.toFixed(2)}</p>`;
+
+    // Reset formulier & stappen
+    document.getElementById('bestelForm').reset();
+    // Reset aantal velden en disable ze
+    gerechten.forEach((gerecht, index) => {
+      const checkbox = document.getElementById('gerecht-' + index);
+      const aantalInput = checkbox.parentElement.nextElementSibling;
+      aantalInput.value = 1;
+      aantalInput.disabled = true;
+      checkbox.checked = false;
+    });
+
+    currentStep = 1;
+    showStep(currentStep);
+    totaalPrijsDiv.textContent = 'Totaal: €0,00';
+    overzichtDiv.innerHTML = '';
+  }
+
+  // Start weergave
+  showStep(currentStep);
+</script>
+
 </body>
 </html>
